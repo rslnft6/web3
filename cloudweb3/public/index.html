@@ -1,11 +1,324 @@
 <!DOCTYPE html>
-<html lang="ar">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CloudWeb3 - تحويل Web2 إلى Web3</title>
-  </head>
-  <body>
-    <div id="root"></div>
-  </body>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CloudWeb3 - تخزين سحابي لامركزي</title>
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+    <style>
+        :root {
+            --primary: #6a11cb;
+            --secondary: #2575fc;
+            --dark: #1e1e2d;
+            --light: #f8f9fa;
+            --accent: #ff6b6b;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Tajawal', sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark), #2d0b59);
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 30px 0;
+            margin-bottom: 30px;
+        }
+        
+        .logo {
+            font-size: 3.5rem;
+            margin-bottom: 15px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        h1 {
+            font-size: 2.8rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .subtitle {
+            font-size: 1.4rem;
+            opacity: 0.85;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.8;
+        }
+        
+        .plan-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 25px;
+            overflow: hidden;
+            max-width: 500px;
+            margin: 40px auto;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .plan-header {
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .plan-title {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+        }
+        
+        .storage-size {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin: 15px 0;
+            background: linear-gradient(90deg, #ffd166, var(--accent));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .plan-price {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-top: 10px;
+        }
+        
+        .plan-body {
+            padding: 35px;
+        }
+        
+        .features-list {
+            list-style: none;
+            margin: 25px 0;
+        }
+        
+        .features-list li {
+            padding: 15px 0;
+            border-bottom: 1px dashed rgba(255, 255, 255, 0.1);
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .features-list li:before {
+            content: "✓";
+            color: #4cd137;
+            margin-left: 10px;
+            font-size: 1.4rem;
+        }
+        
+        .btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 18px;
+            border-radius: 15px;
+            font-size: 1.4rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 25px;
+            box-shadow: 0 5px 15px rgba(106, 17, 203, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(106, 17, 203, 0.6);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .payment-status {
+            text-align: center;
+            padding: 20px;
+            margin-top: 25px;
+            border-radius: 15px;
+            background: rgba(0, 0, 0, 0.2);
+            font-size: 1.1rem;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 1.1rem;
+            opacity: 0.7;
+        }
+        
+        @media (max-width: 768px) {
+            .plan-card {
+                margin: 20px auto;
+            }
+            
+            .plan-header {
+                padding: 20px;
+            }
+            
+            .plan-title {
+                font-size: 1.8rem;
+            }
+            
+            .storage-size {
+                font-size: 2.8rem;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .subtitle {
+                font-size: 1.1rem;
+            }
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">☁️</div>
+            <h1>CloudWeb3</h1>
+            <p class="subtitle">تخزين سحابي لامركزي مدى الحياة - مدفوع لمرة واحدة!</p>
+        </header>
+        
+        <div class="plan-card">
+            <div class="plan-header">
+                <h2 class="plan-title">المرحلة الأولى</h2>
+                <div class="storage-size">100 جيجابايت</div>
+                <div class="plan-price">دفعة واحدة: 0.05 ETH</div>
+            </div>
+            
+            <div class="plan-body">
+                <ul class="features-list">
+                    <li>تخزين دائم مدى الحياة</li>
+                    <li>وصول آمن عبر MetaMask</li>
+                    <li>دعم فني أساسي</li>
+                    <li>شبكة لامركزية عالمية</li>
+                    <li>نسخ احتياطي تلقائي</li>
+                </ul>
+                
+                <button class="btn" id="buyButton">اشتر الآن</button>
+                
+                <div class="payment-status" id="paymentStatus">
+                    اضغط "اشتر الآن" لبدء عملية الشراء
+                </div>
+            </div>
+        </div>
+        
+        <footer>
+            <p>© 2025 CloudWeb3 - الثورة الجديدة في التخزين السحابي اللامركزي</p>
+            <p>مدعوم بتقنيات Web3.Storage وFilecoin</p>
+        </footer>
+    </div>
+
+    <script>
+        // تعريف بيانات الخطة
+        const plan = {
+            name: "المرحلة الأولى",
+            storage: "100 جيجابايت",
+            price: 0.05
+        };
+
+        // تهيئة Web3
+        let web3;
+        if (typeof window.ethereum !== 'undefined') {
+            web3 = new Web3(window.ethereum);
+        } else {
+            document.getElementById('paymentStatus').innerHTML = 
+                '⚠️ يرجى تثبيت MetaMask لاستخدام هذه الخدمة!';
+            document.getElementById('buyButton').disabled = true;
+        }
+
+        // معالجة عملية الشراء
+        document.getElementById('buyButton').addEventListener('click', async () => {
+            if (!web3) return;
+            
+            try {
+                // تحديث حالة الدفع
+                document.getElementById('paymentStatus').innerHTML = 
+                    '🔃 جارٍ الاتصال بمحفظة MetaMask...';
+                
+                // طلب الاتصال بالمحفظة
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                
+                // الحصول على الحسابات
+                const accounts = await web3.eth.getAccounts();
+                
+                // تحديث حالة الدفع
+                document.getElementById('paymentStatus').innerHTML = 
+                    `🔃 جارٍ إعداد معاملة لشراء ${plan.storage}...`;
+                
+                // إعداد المعاملة
+                const transaction = {
+                    from: accounts[0],
+                    to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // عنوان محفظة الشركة
+                    value: web3.utils.toWei(plan.price.toString(), 'ether'),
+                    gas: 21000
+                };
+                
+                // إرسال المعاملة
+                const txHash = await web3.eth.sendTransaction(transaction);
+                
+                // عرض نتيجة المعاملة
+                document.getElementById('paymentStatus').innerHTML = `
+                    <div style="line-height: 1.8;">
+                        <div style="color: #4cd137; font-size: 1.4rem; margin-bottom: 10px;">✓ تمت العملية بنجاح!</div>
+                        <div>تم شراء ${plan.storage} بنجاح</div>
+                        <div>رقم المعاملة: <a href="https://etherscan.io/tx/${txHash}" 
+                            target="_blank" style="color: #3498db; word-break: break-all;">
+                            ${txHash.substring(0, 24)}...
+                        </a></div>
+                        <div style="margin-top: 15px;">سيصلك تأكيد التفعيل خلال 10 دقائق</div>
+                    </div>
+                `;
+                
+            } catch (error) {
+                console.error(error);
+                document.getElementById('paymentStatus').innerHTML = `
+                    <div style="color: #ff6b6b;">
+                        <div style="font-size: 1.3rem; margin-bottom: 8px;">❌ خطأ في المعاملة</div>
+                        <div>${error.message || 'حدث خطأ غير متوقع'}</div>
+                        <div style="margin-top: 15px;">يرجى المحاولة مرة أخرى</div>
+                    </div>
+                `;
+            }
+        });
+
+        // دالة لتنسيق الأرقام
+        function formatEth(eth) {
+            return new Intl.NumberFormat('ar-EG', {
+                minimumFractionDigits: 3,
+                maximumFractionDigits: 3
+            }).format(eth);
+        }
+    </script>
+</body>
 </html>
