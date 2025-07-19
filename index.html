@@ -1,9 +1,81 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <meta http-equiv="refresh" content="0; url=https://rslnft6.github.io/web3/">
-</head>
-<body>
-  <p>جاري التوجيه... <a href="https://rslnft6.github.io/web3/">اضغط هنا</a></p>
-</body>
-</html>
+<!DOCTYPE html>  
+<html lang="ar" dir="rtl">  
+<head>  
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>  
+    <script src="https://cdn.web3.storage/dist/bundle.min.js"></script>  
+    <style>  
+        /* تنسيقات عربية متكاملة */  
+        body { font-family: 'Tajawal', sans-serif; }  
+        .converter-box {  
+            border: 2px dashed #4e89ae;  
+            padding: 25px;  
+            border-radius: 15px;  
+            background: rgba(78, 137, 174, 0.05);  
+        }  
+    </style>  
+</head>  
+<body>  
+
+<div class="converter-box">  
+    <h2>🔄 محول التطبيقات إلى Web3</h2>  
+    <input type="url" id="appUrl" placeholder="https://تطبيقك.com" class="form-control">  
+    <button onclick="convertApp()" class="btn">تحويل الآن (0.001 ETH)</button>  
+    <div id="result"></div>  
+</div>  
+
+<script>  
+const WEB3_STORAGE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.xxxxxxxx"; // استبدل بمفتاحك  
+  
+async function convertApp() {  
+    const appUrl = document.getElementById('appUrl').value;  
+    if (!appUrl) return alert("الرجاء إدخال رابط التطبيق");  
+    
+    try {  
+        // 1. الاتصال بالمحفظة  
+        if (!window.ethereum) throw new Error("MetaMask غير مثبت!");  
+        await ethereum.request({ method: 'eth_requestAccounts' });  
+          
+        // 2. الدفع  
+        const accounts = await new Web3(ethereum).eth.getAccounts();  
+        await ethereum.request({  
+            method: 'eth_sendTransaction',  
+            params: [{  
+                from: accounts[0],  
+                to: "0x742d35Cc6634C0532925a3b844Bc454e4438f44e",  
+                value: "0x38D7EA4C68000", // 0.001 ETH  
+                chainId: "0xAA36A7" // شبكة Sepolia  
+            }]  
+        });  
+          
+        // 3. تحويل التطبيق  
+        document.getElementById('result').innerHTML = "جارٍ التحميل والتحويل...";  
+        const response = await fetch(`https://corsproxy.io/?${appUrl}`);  
+        const htmlContent = await response.text();  
+          
+        // 4. رفع إلى IPFS  
+        const client = new Web3Storage({ token: WEB3_STORAGE_KEY });  
+        const file = new File([htmlContent], "index.html", { type: "text/html" });  
+        const cid = await client.put([file], { wrapWithDirectory: false });  
+          
+        // 5. عرض النتيجة  
+        const web3Url = `https://${cid}.ipfs.dweb.link`;  
+        document.getElementById('result').innerHTML = `  
+            <div class="alert success">  
+                <h3>✅ تم التحويل بنجاح!</h3>  
+                <p>رابط التطبيق الجديد:  
+                <a href="${web3Url}" target="_blank">${web3Url}</a></p>  
+                <p>تم تخزينه على شبكة IPFS بشكل دائم</p>  
+            </div>  
+        `;  
+          
+    } catch (error) {  
+        document.getElementById('result').innerHTML = `  
+            <div class="alert error">  
+                ❌ حدث خطأ: ${error.message}  
+            </div>  
+        `;  
+    }  
+}  
+</script>  
+</body>  
+</html>  
