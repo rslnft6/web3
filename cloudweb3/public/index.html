@@ -58,58 +58,20 @@
         const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
         const files = userFiles[username] || [];
         let total = 0;
-        files.forEach(f => {
-          if (f.size) total += f.size;
-        });
-        return total;
-      }
 
-      function updateUserStorageInfo(username) {
-        const maxFree = 500 * 1024 * 1024; // 500 ميجا
-        const used = getUserStorageUsage(username);
-        const left = Math.max(0, maxFree - used);
-        document.getElementById('usedSpace').innerText = (used / (1024*1024)).toFixed(2);
-        document.getElementById('freeSpace').innerText = (left / (1024*1024)).toFixed(2);
-      }
-
-      function renderUserFiles() {
-        const username = usernameInput.value.trim();
-        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
-        const files = userFiles[username] || [];
-        const ul = document.getElementById('userFiles');
-        ul.innerHTML = files.length ? files.map((f, i) => `
-          <li>
-            <a href="${f.url}" target="_blank" class="ipfs-link">${f.name}</a>
-            <span class="ms-2">(${f.size ? (f.size/(1024*1024)).toFixed(2) : '---'} ميجا)</span>
-            <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteFile(${i})">حذف</button>
-            <button class="btn btn-sm btn-outline-success ms-2" onclick="downloadFile('${f.url}', '${f.name}')">تحميل</button>
-          </li>
-        `).join('') : '<li>لا توجد ملفات محفوظة لهذا المستخدم.</li>';
-        updateUserStorageInfo(username);
-      }
-
-      window.deleteFile = function(idx) {
-        const username = usernameInput.value.trim();
-        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
-        userFiles[username].splice(idx, 1);
-        localStorage.setItem('userFiles', JSON.stringify(userFiles));
-        renderUserFiles();
-      }
-
-      window.downloadFile = function(url, name) {
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = name;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-      }
-      usernameInput.oninput = renderUserFiles;
-      renderUserFiles();
-
-      document.getElementById('uploadBtn').onclick = async function() {
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = '';
+<!DOCTYPE html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CloudWeb3</title>
+    <link rel="icon" href="favicon.ico" />
+  </head>
+  <body>
+    <noscript>يجب تفعيل الجافاسكريبت لعرض الموقع.</noscript>
+    <div id="root"></div>
+  </body>
+</html>
         const username = usernameInput.value.trim();
         if (!username) {
           resultDiv.innerHTML = '<div class="error">يرجى إدخال اسم المستخدم أولاً</div>';
