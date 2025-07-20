@@ -3,41 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CloudWeb3 - تخزين سحابي ويب3</title>
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+    <title>CloudWeb3 - تخزين سحابي ويب 3 مدفوع لمرة واحدة</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        :root {
-            --primary: #4e89ae;
-            --secondary: #43658b;
-            --light: #edf7fa;
-            --dark: #2d4059;
-        }
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-        body {
-            background: linear-gradient(135deg, #1a2a6c, #2d4059);
-            color: var(--light);
-            line-height: 1.6;
-            min-height: 100vh;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .container {
-            max-width: 800px;
-            width: 100%;
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-            margin-top: 30px;
-        }
+      body { font-family: 'Cairo', Arial, sans-serif; background: #f7f7fa; }
+      .container { max-width: 650px; margin: 40px auto; background: #fff; border-radius: 16px; box-shadow: 0 2px 12px #0002; padding: 40px; }
+      h1 { color: #4e89ae; font-weight: bold; }
+      .info { margin: 24px 0; color: #222; background: #eaf4fb; border-radius: 8px; padding: 16px; }
+      .success { color: #2ecc40; margin-top: 12px; }
+      .error { color: #e74c3c; margin-top: 12px; }
+      .ipfs-link { word-break: break-all; }
+      .form-control, .btn { margin-bottom: 12px; }
+      .file-list { margin-top: 16px; }
+      .file-list li { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
+      .file-list a { flex: 1; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.0.3/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/web3.storage/dist/bundle.esm.min.js"></script>
         header {
             text-align: center;
             margin-bottom: 30px;
@@ -159,152 +141,97 @@
 </head>
 <body>
     <div class="container">
-        <header>
-            <h1>☁️ CloudWeb3</h1>
-            <p class="subtitle">تخزين سحابي لامركزي مدى الحياة - مدفوع لمرة واحدة!</p>
-        </header>
-        
-        <div class="card">
-            <h2>✨ خطط التخزين</h2>
-            <div class="pricing-plans">
-                <div class="plan">
-                    <h3>المرحلة الأولى</h3>
-                    <div class="price">100 جيجابايت</div>
-                    <ul class="features">
-                        <li>دفعة واحدة: 0.05 ETH</li>
-                        <li>تخزين دائم</li>
-                        <li>وصول عبر MetaMask</li>
-                        <li>دعم أساسي</li>
-                    </ul>
-                    <button class="btn" onclick="buyPlan(0)">اشتري الآن</button>
-                </div>
-                
-                <div class="plan">
-                    <h3>المرحلة المتقدمة</h3>
-                    <div class="price">1 تيرابايت</div>
-                    <ul class="features">
-                        <li>دفعة واحدة: 0.1 ETH</li>
-                        <li>أداة التحويل لـ Web3</li>
-                        <li>دعم فني مميز</li>
-                        <li>وصول مبكر للميزات</li>
-                    </ul>
-                    <button class="btn" onclick="buyPlan(1)">اشتري الآن</button>
-                </div>
-                
-                <div class="plan">
-                    <h3>المرحلة المؤسسية</h3>
-                    <div class="price">5 تيرابايت</div>
-                    <ul class="features">
-                        <li>دفعة واحدة: 0.5 ETH</li>
-                        <li>جميع الميزات المتقدمة</li>
-                        <li>تخصيص كامل</li>
-                        <li>دعم فني 24/7</li>
-                    </ul>
-                    <button class="btn" onclick="buyPlan(2)">اشتري الآن</button>
-                </div>
-            </div>
-        </div>
-        
-        <div class="card converter-section">
-            <h2>⚡ محول التطبيقات إلى Web3</h2>
-            <p>حول أي تطبيق ويب تقليدي إلى تطبيق لامركزي في ثوانٍ!</p>
-            
-            <input type="text" id="appUrl" placeholder="أدخل رابط التطبيق (مثال: https://موقعك.com)">
-            <button class="btn" onclick="convertToWeb3()">تحويل الآن</button>
-            
-            <div id="conversionStatus" class="status">
-                أدخل الرابط واضغط "تحويل الآن"
-            </div>
-        </div>
-        
-        <footer>
-            <p>© 2025 CloudWeb3 - الثورة الجديدة في التخزين السحابي</p>
-            <p>مدعوم بـ Web3.Storage وFilecoin وIPFS</p>
-        </footer>
+      <h1>CloudWeb3 - تخزين سحابي ويب 3 مدفوع لمرة واحدة</h1>
+      <div class="info">
+        <b>الخطوات:</b>
+        <ol>
+          <li>اختر ملف لرفعه (مثال: README.md أو أي ملف آخر)</li>
+          <li>أدخل اسم المستخدم أو البريد الإلكتروني</li>
+          <li>اضغط على زر رفع الملف</li>
+          <li>يظهر رابط الملف ويمكنك تحميله أو حذفه أو مشاركته مباشرة</li>
+        </ol>
+      </div>
+      <input type="text" id="username" class="form-control" placeholder="اسم المستخدم أو البريد الإلكتروني" />
+      <input type="file" id="fileInput" class="form-control" />
+      <button class="btn btn-primary w-100" id="uploadBtn">رفع الملف باسم المستخدم</button>
+      <div id="result"></div>
+      <hr />
+      <h3 class="mt-4">ملفاتك السابقة</h3>
+      <ul id="userFiles" class="file-list list-unstyled"></ul>
+      <footer class="mt-4 text-center">
+        <p>© 2025 CloudWeb3 - الثورة الجديدة في التخزين السحابي</p>
+        <p>مدعوم بـ Web3.Storage وFilecoin وIPFS</p>
+      </footer>
     </div>
 
     <script>
-        // تعريف خطط التسعير
-        const pricingPlans = [
-            { storage: "100GB", price: 0.05, features: ["تخزين دائم", "وصول MetaMask"] },
-            { storage: "1TB", price: 0.1, features: ["+ أداة التحويل لـ Web3", "دعم فني"] },
-            { storage: "5TB", price: 0.5, features: ["جميع الميزات", "تخصيص كامل"] }
-        ];
+      let selectedFile = null;
+      const usernameInput = document.getElementById('username');
+      document.getElementById('fileInput').onchange = e => {
+        selectedFile = e.target.files[0];
+      };
 
-        // تهيئة Web3
-        let web3;
-        if (typeof window.ethereum !== 'undefined') {
-            web3 = new Web3(window.ethereum);
-        } else {
-            alert('يرجى تثبيت MetaMask لاستخدام هذا التطبيق!');
-        }
+      function renderUserFiles() {
+        const username = usernameInput.value.trim();
+        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        const files = userFiles[username] || [];
+        const ul = document.getElementById('userFiles');
+        ul.innerHTML = files.length ? files.map((f, i) => `
+          <li>
+            <a href="${f.url}" target="_blank" class="ipfs-link">${f.name}</a>
+            <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteFile(${i})">حذف</button>
+            <button class="btn btn-sm btn-outline-success ms-2" onclick="downloadFile('${f.url}', '${f.name}')">تحميل</button>
+          </li>
+        `).join('') : '<li>لا توجد ملفات محفوظة لهذا المستخدم.</li>';
+      }
 
-        // شراء خطة
-        async function buyPlan(planIndex) {
-            if (!web3) return;
-            
-            try {
-                // طلب الاتصال بالمحفظة
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                
-                const accounts = await web3.eth.getAccounts();
-                const selectedPlan = pricingPlans[planIndex];
-                
-                document.getElementById('conversionStatus').innerHTML = 
-                    `<p>جارٍ معالجة الدفع لخطة ${selectedPlan.storage}...</p>`;
-                
-                // إرسال المعاملة
-                const transaction = {
-                    from: accounts[0],
-                    to: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e', // عنوان محفظة الشركة
-                    value: web3.utils.toWei(selectedPlan.price.toString(), 'ether')
-                };
-                
-                const txHash = await web3.eth.sendTransaction(transaction);
-                
-                document.getElementById('conversionStatus').innerHTML = `
-                    <p>✅ تمت العملية بنجاح!</p>
-                    <p>تم شراء خطة ${selectedPlan.storage} بنجاح.</p>
-                    <p>رقم المعاملة: <a href="https://etherscan.io/tx/${txHash}" target="_blank">${txHash.substring(0, 20)}...</a></p>
-                    <p>سيتم تفعيل الخطة خلال 5 دقائق.</p>
-                `;
-            } catch (error) {
-                console.error(error);
-                document.getElementById('conversionStatus').innerHTML = 
-                    `<p>❌ خطأ في المعاملة: ${error.message}</p>`;
-            }
-        }
+      window.deleteFile = function(idx) {
+        const username = usernameInput.value.trim();
+        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        userFiles[username].splice(idx, 1);
+        localStorage.setItem('userFiles', JSON.stringify(userFiles));
+        renderUserFiles();
+      }
 
-        // تحويل التطبيق إلى Web3
-        async function convertToWeb3() {
-            const appUrl = document.getElementById('appUrl').value;
-            if (!appUrl) {
-                alert('يرجى إدخال رابط التطبيق');
-                return;
-            }
-            
-            document.getElementById('conversionStatus').innerHTML = 
-                `<p>جارٍ تحويل ${appUrl} إلى تطبيق Web3...</p>`;
-            
-            try {
-                // محاكاة رفع التطبيق إلى IPFS
-                await new Promise(resolve => setTimeout(resolve, 3000));
-                
-                // توليد رابط وهمي (في الإصدار الحقيقي سيتم الاتصال بخدمة Web3.Storage)
-                const cid = 'Qm' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-                const ipfsLink = `https://${cid}.ipfs.dweb.link`;
-                
-                document.getElementById('conversionStatus').innerHTML = `
-                    <p>✅ تم التحويل بنجاح!</p>
-                    <p>رابط التطبيق اللامركزي الجديد:</p>
-                    <p><a href="${ipfsLink}" target="_blank">${ipfsLink}</a></p>
-                    <p>تم تخزين التطبيق على شبكة IPFS/Filecoin</p>
-                `;
-            } catch (error) {
-                document.getElementById('conversionStatus').innerHTML = 
-                    `<p>❌ حدث خطأ أثناء التحويل: ${error.message}</p>`;
-            }
+      window.downloadFile = function(url, name) {
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      usernameInput.oninput = renderUserFiles;
+      renderUserFiles();
+
+      document.getElementById('uploadBtn').onclick = async function() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+        const username = usernameInput.value.trim();
+        if (!username) {
+          resultDiv.innerHTML = '<div class="error">يرجى إدخال اسم المستخدم أولاً</div>';
+          return;
         }
+        if (!selectedFile) {
+          resultDiv.innerHTML = '<div class="error">يرجى اختيار ملف أولاً</div>';
+          return;
+        }
+        try {
+          // رفع الملف إلى Web3Storage مباشرة باسم المستخدم
+          const client = new window.Web3Storage.Web3Storage({ token: 'YOUR_WEB3STORAGE_TOKEN' });
+          const cid = await client.put([selectedFile], { name: username + '_' + selectedFile.name });
+          const ipfsUrl = `https://ipfs.io/ipfs/${cid}`;
+          resultDiv.innerHTML = '<div class="success">تم رفع الملف على IPFS: <a class="ipfs-link" href="' + ipfsUrl + '" target="_blank">' + ipfsUrl + '</a></div>';
+          // حفظ الملف في LocalStorage للمستخدم
+          const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
+          if (!userFiles[username]) userFiles[username] = [];
+          userFiles[username].push({ name: selectedFile.name, url: ipfsUrl });
+          localStorage.setItem('userFiles', JSON.stringify(userFiles));
+          renderUserFiles();
+        } catch (err) {
+          resultDiv.innerHTML = '<div class="error">حدث خطأ أثناء رفع الملف: ' + err.message + '</div>';
+        }
+      };
     </script>
 </body>
   </html>
