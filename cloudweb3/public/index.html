@@ -1,13 +1,80 @@
 
+
 <!DOCTYPE html>
 <html lang="ar">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>CloudWeb3 - تحويل Web2 إلى Web3</title>
+    <title>CloudWeb3 - تخزين سحابي ويب 3 مدفوع لمرة واحدة</title>
+    <style>
+      body { font-family: 'Cairo', Arial, sans-serif; background: #f7f7fa; margin: 0; }
+      .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 12px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+      h1 { color: #4e89ae; }
+      .btn { background: #4e89ae; color: #fff; border: none; padding: 12px 32px; border-radius: 8px; font-size: 1.1em; cursor: pointer; margin-top: 16px; }
+      .btn:disabled { background: #aaa; }
+      .info { margin: 24px 0; color: #222; }
+      .success { color: #2ecc40; }
+      .error { color: #e74c3c; }
+      .ipfs-link { word-break: break-all; }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/web3@4.0.3/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/web3.storage/dist/bundle.esm.min.js"></script>
   </head>
   <body>
-    <div id="root"></div>
+    <div class="container">
+      <h1>CloudWeb3 - تخزين سحابي ويب 3 مدفوع لمرة واحدة</h1>
+      <div class="info">
+        <b>الخطوات:</b>
+        <ol>
+          <li>اختر ملف لرفعه (مثال: README.md أو أي ملف آخر)</li>
+          <li>اضغط على زر شراء الباقة (100 جيجا) والدفع عبر MetaMask</li>
+          <li>بعد الدفع، يتم رفع الملف إلى IPFS وWeb3Storage</li>
+          <li>يظهر رابط الملف ويمكنك مشاركته أو نشره مباشرة</li>
+        </ol>
+      </div>
+      <input type="file" id="fileInput" />
+      <button class="btn" id="buyBtn">شراء باقة 100 جيجا ورفع الملف</button>
+      <div id="result"></div>
+    </div>
+    <script>
+      let selectedFile = null;
+      document.getElementById('fileInput').onchange = e => {
+        selectedFile = e.target.files[0];
+      };
+      document.getElementById('buyBtn').onclick = async function() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+        if (!selectedFile) {
+          resultDiv.innerHTML = '<div class="error">يرجى اختيار ملف أولاً</div>';
+          return;
+        }
+        if (!window.ethereum) {
+          resultDiv.innerHTML = '<div class="error">يرجى تثبيت MetaMask أولاً</div>';
+          return;
+        }
+        try {
+          // طلب الاتصال بالمحفظة
+          await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const web3 = new Web3(window.ethereum);
+          const accounts = await web3.eth.getAccounts();
+          const account = accounts[0];
+          // دفع رسوم رمزية (0.001 ETH)
+          const tx = await web3.eth.sendTransaction({
+            from: account,
+            to: account, // في التطبيق الحقيقي: عنوان العقد الذكي
+            value: web3.utils.toWei('0.001', 'ether'),
+          });
+          resultDiv.innerHTML = '<div class="success">تم الدفع بنجاح! هاش المعاملة: <a href="https://etherscan.io/tx/' + tx.transactionHash + '" target="_blank">' + tx.transactionHash + '</a></div>';
+          // رفع الملف إلى Web3Storage
+          const client = new window.Web3Storage.Web3Storage({ token: 'YOUR_WEB3STORAGE_TOKEN' });
+          const cid = await client.put([selectedFile]);
+          const ipfsUrl = `https://ipfs.io/ipfs/${cid}`;
+          resultDiv.innerHTML += '<div class="success">تم رفع الملف على IPFS: <a class="ipfs-link" href="' + ipfsUrl + '" target="_blank">' + ipfsUrl + '</a></div>';
+        } catch (err) {
+          resultDiv.innerHTML = '<div class="error">حدث خطأ أثناء الدفع أو رفع الملف: ' + err.message + '</div>';
+        }
+      };
+    </script>
   </body>
 </html>
 
