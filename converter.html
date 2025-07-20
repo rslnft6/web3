@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>محول التطبيقات إلى Web3</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-btn">← الرجوع</a>
+        <h1>🔄 محول التطبيقات إلى Web3</h1>
+    </header>
+
+    <main class="converter-container">
+        <div class="card">
+            <input type="url" id="appUrl" placeholder="https://موقعك.com" class="url-input">
+            <button onclick="convertApp()" class="btn">تحويل الآن (0.001 ETH)</button>
+            <div id="result" class="result-box"></div>
+        </div>
+
+        <div class="info">
+            <h3>⭐ لماذا التحويل إلى Web3؟</h3>
+            <ul>
+                <li>لا يمكن حظر التطبيق</li>
+                <li>استضافة لا مركزية على IPFS</li>
+                <li>حماية خصوصية المستخدمين</li>
+                <li>ديمومة البيانات مدى الحياة</li>
+            </ul>
+        </div>
+    </main>
+
+    <script src="assets/js/converter.js"></script>
+</body>
+</html>
