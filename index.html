@@ -140,24 +140,59 @@
     </style>
 </head>
 <body>
-    <div class="container">
-      <h1>CloudWeb3 - تخزين سحابي ويب 3 مدفوع لمرة واحدة</h1>
-      <div class="info">
-        <b>الخطوات:</b>
-        <ol>
-          <li>اختر ملف لرفعه (مثال: README.md أو أي ملف آخر)</li>
-          <li>أدخل اسم المستخدم أو البريد الإلكتروني</li>
-          <li>اضغط على زر رفع الملف</li>
-          <li>يظهر رابط الملف ويمكنك تحميله أو حذفه أو مشاركته مباشرة</li>
-        </ol>
+    <div class="container" id="mainContainer">
+      <h1>CloudWeb3 - منصة التخزين السحابي العالمية</h1>
+      <div id="authSection">
+        <div class="card p-4 mb-4">
+          <h4>تسجيل الدخول</h4>
+          <input type="text" id="loginUser" class="form-control" placeholder="اسم المستخدم أو البريد الإلكتروني" />
+          <input type="password" id="loginPass" class="form-control" placeholder="كلمة المرور" />
+          <button class="btn btn-success w-100" id="loginBtn">دخول</button>
+          <hr />
+          <h5>مستخدم جديد؟</h5>
+          <input type="text" id="regUser" class="form-control" placeholder="اسم المستخدم أو البريد الإلكتروني" />
+          <input type="password" id="regPass" class="form-control" placeholder="كلمة المرور" />
+          <button class="btn btn-primary w-100" id="registerBtn">تسجيل جديد</button>
+          <div id="authMsg" class="mt-2"></div>
+        </div>
       </div>
-      <input type="text" id="username" class="form-control" placeholder="اسم المستخدم أو البريد الإلكتروني" />
-      <input type="file" id="fileInput" class="form-control" />
-      <button class="btn btn-primary w-100" id="uploadBtn">رفع الملف باسم المستخدم</button>
-      <div id="result"></div>
-      <hr />
-      <h3 class="mt-4">ملفاتك السابقة</h3>
-      <ul id="userFiles" class="file-list list-unstyled"></ul>
+      <div id="userDashboard" style="display:none">
+        <h3>لوحة تحكم المستخدم</h3>
+        <div class="info">
+          <b>الخطوات:</b>
+          <ol>
+            <li>اختر ملف لرفعه</li>
+            <li>اضغط على زر رفع الملف</li>
+            <li>يظهر رابط الملف ويمكنك تحميله أو حذفه أو مشاركته مباشرة</li>
+          </ol>
+        </div>
+        <input type="file" id="fileInput" class="form-control" />
+        <button class="btn btn-primary w-100" id="uploadBtn">رفع الملف</button>
+        <div id="result"></div>
+        <hr />
+        <h4>ملفاتك السابقة</h4>
+        <ul id="userFiles" class="file-list list-unstyled"></ul>
+        <button class="btn btn-outline-danger mt-3" id="logoutBtn">تسجيل خروج</button>
+      </div>
+      <div id="adminDashboard" style="display:none">
+        <h3>لوحة تحكم الإدارة</h3>
+        <div class="info">
+          <b>جميع المستخدمين وملفاتهم:</b>
+          <ul id="allUsers" class="file-list list-unstyled"></ul>
+        </div>
+      </div>
+      <div class="card mt-4 p-3">
+        <h4>وسائل الدفع العالمية</h4>
+        <ul>
+          <li>فيزا/ماستر كارد: <b>1234 5678 9012 3456</b></li>
+          <li>باي بال: <b>cloudweb3@company.com</b></li>
+          <li>بايير: <b>P1234567</b></li>
+          <li>فودافون كاش: <b>01012345678</b></li>
+          <li>STC Pay: <b>0551234567</b></li>
+          <li>حساب بنكي: <b>SA1234567890123456789012</b></li>
+        </ul>
+        <p class="mt-2">بعد التحويل، تواصل معنا عبر البريد: <b>support@cloudweb3.com</b></p>
+      </div>
       <footer class="mt-4 text-center">
         <p>© 2025 CloudWeb3 - الثورة الجديدة في التخزين السحابي</p>
         <p>مدعوم بـ Web3.Storage وFilecoin وIPFS</p>
@@ -165,16 +200,106 @@
     </div>
 
     <script>
+      // نظام المستخدمين المحلي
+      function getUsers() {
+        return JSON.parse(localStorage.getItem('users') || '{}');
+      }
+      function saveUsers(users) {
+        localStorage.setItem('users', JSON.stringify(users));
+      }
+      function getUserFiles(username) {
+        const files = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        return files[username] || [];
+      }
+      function saveUserFile(username, file) {
+        const files = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        if (!files[username]) files[username] = [];
+        files[username].push(file);
+        localStorage.setItem('userFiles', JSON.stringify(files));
+      }
+      function deleteUserFile(username, idx) {
+        const files = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        files[username].splice(idx, 1);
+        localStorage.setItem('userFiles', JSON.stringify(files));
+      }
+
+      // تسجيل دخول وتسجيل جديد
+      let currentUser = null;
+      document.getElementById('loginBtn').onclick = function() {
+        const user = document.getElementById('loginUser').value.trim();
+        const pass = document.getElementById('loginPass').value;
+        const users = getUsers();
+        if (users[user] && users[user] === pass) {
+          currentUser = user;
+          showDashboard();
+        } else if (user === 'admin' && pass === 'admin123') {
+          currentUser = 'admin';
+          showAdmin();
+        } else {
+          document.getElementById('authMsg').innerHTML = '<div class="error">بيانات الدخول غير صحيحة</div>';
+        }
+      };
+      document.getElementById('registerBtn').onclick = function() {
+        const user = document.getElementById('regUser').value.trim();
+        const pass = document.getElementById('regPass').value;
+        const users = getUsers();
+        if (users[user]) {
+          document.getElementById('authMsg').innerHTML = '<div class="error">المستخدم موجود بالفعل</div>';
+        } else if (user && pass) {
+          users[user] = pass;
+          saveUsers(users);
+          document.getElementById('authMsg').innerHTML = '<div class="success">تم التسجيل بنجاح! يمكنك تسجيل الدخول الآن.</div>';
+        } else {
+          document.getElementById('authMsg').innerHTML = '<div class="error">يرجى إدخال جميع البيانات</div>';
+        }
+      };
+
+      function showDashboard() {
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('userDashboard').style.display = '';
+        document.getElementById('adminDashboard').style.display = 'none';
+        renderUserFiles();
+      }
+      function showAdmin() {
+        document.getElementById('authSection').style.display = 'none';
+        document.getElementById('userDashboard').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = '';
+        renderAllUsers();
+      }
+      document.getElementById('logoutBtn').onclick = function() {
+        currentUser = null;
+        document.getElementById('authSection').style.display = '';
+        document.getElementById('userDashboard').style.display = 'none';
+        document.getElementById('adminDashboard').style.display = 'none';
+      };
+
+      // رفع الملفات للمستخدم
       let selectedFile = null;
-      const usernameInput = document.getElementById('username');
       document.getElementById('fileInput').onchange = e => {
         selectedFile = e.target.files[0];
       };
+      document.getElementById('uploadBtn').onclick = async function() {
+        const resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '';
+        if (!selectedFile) {
+          resultDiv.innerHTML = '<div class="error">يرجى اختيار ملف أولاً</div>';
+          return;
+        }
+        try {
+          // رفع الملف إلى Web3Storage باسم المستخدم
+          const client = new window.Web3Storage.Web3Storage({ token: 'YOUR_WEB3STORAGE_TOKEN' });
+          const cid = await client.put([selectedFile], { name: currentUser + '_' + selectedFile.name });
+          const ipfsUrl = `https://ipfs.io/ipfs/${cid}`;
+          resultDiv.innerHTML = '<div class="success">تم رفع الملف على IPFS: <a class="ipfs-link" href="' + ipfsUrl + '" target="_blank">' + ipfsUrl + '</a></div>';
+          saveUserFile(currentUser, { name: selectedFile.name, url: ipfsUrl });
+          renderUserFiles();
+        } catch (err) {
+          resultDiv.innerHTML = '<div class="error">حدث خطأ أثناء رفع الملف: ' + err.message + '</div>';
+        }
+      };
 
       function renderUserFiles() {
-        const username = usernameInput.value.trim();
-        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
-        const files = userFiles[username] || [];
+        const files = getUserFiles(currentUser);
         const ul = document.getElementById('userFiles');
         ul.innerHTML = files.length ? files.map((f, i) => `
           <li>
@@ -184,15 +309,10 @@
           </li>
         `).join('') : '<li>لا توجد ملفات محفوظة لهذا المستخدم.</li>';
       }
-
       window.deleteFile = function(idx) {
-        const username = usernameInput.value.trim();
-        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
-        userFiles[username].splice(idx, 1);
-        localStorage.setItem('userFiles', JSON.stringify(userFiles));
+        deleteUserFile(currentUser, idx);
         renderUserFiles();
       }
-
       window.downloadFile = function(url, name) {
         const a = document.createElement('a');
         a.href = url;
@@ -201,37 +321,22 @@
         a.click();
         document.body.removeChild(a);
       }
-      usernameInput.oninput = renderUserFiles;
-      renderUserFiles();
 
-      document.getElementById('uploadBtn').onclick = async function() {
-        const resultDiv = document.getElementById('result');
-        resultDiv.innerHTML = '';
-        const username = usernameInput.value.trim();
-        if (!username) {
-          resultDiv.innerHTML = '<div class="error">يرجى إدخال اسم المستخدم أولاً</div>';
-          return;
-        }
-        if (!selectedFile) {
-          resultDiv.innerHTML = '<div class="error">يرجى اختيار ملف أولاً</div>';
-          return;
-        }
-        try {
-          // رفع الملف إلى Web3Storage مباشرة باسم المستخدم
-          const client = new window.Web3Storage.Web3Storage({ token: 'YOUR_WEB3STORAGE_TOKEN' });
-          const cid = await client.put([selectedFile], { name: username + '_' + selectedFile.name });
-          const ipfsUrl = `https://ipfs.io/ipfs/${cid}`;
-          resultDiv.innerHTML = '<div class="success">تم رفع الملف على IPFS: <a class="ipfs-link" href="' + ipfsUrl + '" target="_blank">' + ipfsUrl + '</a></div>';
-          // حفظ الملف في LocalStorage للمستخدم
-          const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
-          if (!userFiles[username]) userFiles[username] = [];
-          userFiles[username].push({ name: selectedFile.name, url: ipfsUrl });
-          localStorage.setItem('userFiles', JSON.stringify(userFiles));
-          renderUserFiles();
-        } catch (err) {
-          resultDiv.innerHTML = '<div class="error">حدث خطأ أثناء رفع الملف: ' + err.message + '</div>';
-        }
-      };
+      // لوحة تحكم الإدارة
+      function renderAllUsers() {
+        const users = getUsers();
+        const files = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        const ul = document.getElementById('allUsers');
+        ul.innerHTML = Object.keys(users).length ? Object.keys(users).map(u => `
+          <li>
+            <b>${u}</b>
+            <ul>
+              ${(files[u]||[]).map(f => `<li><a href="${f.url}" target="_blank">${f.name}</a></li>`).join('')}
+            </ul>
+          </li>
+        `).join('') : '<li>لا يوجد مستخدمين بعد.</li>';
+      }
+    </script>
     </script>
 </body>
   </html>
