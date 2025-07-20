@@ -39,8 +39,12 @@
       <input type="file" id="fileInput" class="form-control" />
       <button class="btn btn-primary w-100" id="uploadBtn">رفع الملف باسم المستخدم</button>
       <div id="result"></div>
+      <div class="card mt-3 p-3">
+        <div><b>المساحة المستخدمة:</b> <span id="usedSpace"></span> ميجا</div>
+        <div><b>المساحة المتبقية:</b> <span id="freeSpace"></span> ميجا</div>
+      </div>
       <hr />
-      <h3 class="mt-4">ملفاتك السابقة</h3>
+      <h3 class="mt-4">لوحة تحكم الملفات</h3>
       <ul id="userFiles" class="file-list list-unstyled"></ul>
     </div>
     <script>
@@ -50,6 +54,24 @@
         selectedFile = e.target.files[0];
       };
 
+      function getUserStorageUsage(username) {
+        const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
+        const files = userFiles[username] || [];
+        let total = 0;
+        files.forEach(f => {
+          if (f.size) total += f.size;
+        });
+        return total;
+      }
+
+      function updateUserStorageInfo(username) {
+        const maxFree = 500 * 1024 * 1024; // 500 ميجا
+        const used = getUserStorageUsage(username);
+        const left = Math.max(0, maxFree - used);
+        document.getElementById('usedSpace').innerText = (used / (1024*1024)).toFixed(2);
+        document.getElementById('freeSpace').innerText = (left / (1024*1024)).toFixed(2);
+      }
+
       function renderUserFiles() {
         const username = usernameInput.value.trim();
         const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
@@ -58,10 +80,12 @@
         ul.innerHTML = files.length ? files.map((f, i) => `
           <li>
             <a href="${f.url}" target="_blank" class="ipfs-link">${f.name}</a>
+            <span class="ms-2">(${f.size ? (f.size/(1024*1024)).toFixed(2) : '---'} ميجا)</span>
             <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteFile(${i})">حذف</button>
             <button class="btn btn-sm btn-outline-success ms-2" onclick="downloadFile('${f.url}', '${f.name}')">تحميل</button>
           </li>
         `).join('') : '<li>لا توجد ملفات محفوظة لهذا المستخدم.</li>';
+        updateUserStorageInfo(username);
       }
 
       window.deleteFile = function(idx) {
@@ -95,6 +119,13 @@
           resultDiv.innerHTML = '<div class="error">يرجى اختيار ملف أولاً</div>';
           return;
         }
+        // تحقق من المساحة المجانية
+        const maxFree = 500 * 1024 * 1024; // 500 ميجا
+        const used = getUserStorageUsage(username);
+        if (used + selectedFile.size > maxFree) {
+          resultDiv.innerHTML = '<div class="error">لقد تجاوزت المساحة المجانية! يرجى شراء باقة أكبر.</div>';
+          return;
+        }
         try {
           // رفع الملف إلى Web3Storage مباشرة باسم المستخدم
           const client = new window.Web3Storage.Web3Storage({ token: 'YOUR_WEB3STORAGE_TOKEN' });
@@ -104,7 +135,7 @@
           // حفظ الملف في LocalStorage للمستخدم
           const userFiles = JSON.parse(localStorage.getItem('userFiles') || '{}');
           if (!userFiles[username]) userFiles[username] = [];
-          userFiles[username].push({ name: selectedFile.name, url: ipfsUrl });
+          userFiles[username].push({ name: selectedFile.name, url: ipfsUrl, size: selectedFile.size });
           localStorage.setItem('userFiles', JSON.stringify(userFiles));
           renderUserFiles();
         } catch (err) {
