@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>باقات التخزين السحابي</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.6.1/dist/web3.min.js"></script>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="back-btn">← الرجوع</a>
+        <h1>💾 باقات التخزين السحابي</h1>
+        <p>تخزين دائم مدفوع لمرة واحدة فقط!</p>
+    </header>
+
+    <main class="storage-container">
+        <div class="plan-card">
+            <h2>الباقة الأساسية</h2>
+            <div class="storage-size">100 جيجابايت</div>
+            <div class="price">0.005 ETH</div>
+            <ul class="features">
+                <li>تخزين دائم مدى الحياة</li>
+                <li>5 تحويلات مجانية</li>
+                <li>دعم فني أساسي</li>
+            </ul>
+            <button class="btn" onclick="buyPlan(100)">اشتري الآن</button>
+        </div>
+
+        <div class="plan-card featured">
+            <div class="badge">الأفضل</div>
+            <h2>الباقة الاحترافية</h2>
+            <div class="storage-size">5 تيرابايت</div>
+            <div class="price">0.02 ETH</div>
+            <ul class="features">
+                <li>⭐ نفس سعر 100 جيجابايت + 4900 جيجابايت مجاناً!</li>
+                <li>تحويلات غير محدودة</li>
+                <li>دعم فني مميز 24/7</li>
+                <li>نطاق فرعي مخصص</li>
+            </ul>
+            <button class="btn" onclick="buyPlan(5000)">اشتري الآن</button>
+        </div>
+    </main>
+
+    <script src="assets/js/storage.js"></script>
+</body>
+</html>
