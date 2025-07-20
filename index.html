@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ar">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>CloudWeb3 - تخزين سحابي ويب 3 مدفوع لمرة واحدة</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
@@ -13,6 +13,8 @@
       .success { color: #2ecc40; margin-top: 12px; }
       .error { color: #e74c3c; margin-top: 12px; }
       .ipfs-link { word-break: break-all; }
+    </style>
+    <script src="https://unpkg.com/web3.storage/dist/bundle.umd.min.js"></script>
       .form-control, .btn { margin-bottom: 12px; }
       .file-list { margin-top: 16px; }
       .file-list li { display: flex; align-items: center; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #eee; }
@@ -169,8 +171,13 @@
         <input type="file" id="fileInput" class="form-control" />
         <button class="btn btn-primary w-100" id="uploadBtn">رفع الملف</button>
         <div id="result"></div>
+        <div class="mt-2"><b>المساحة المجانية المتبقية:</b> <span id="freeSpace"></span> ميجا</div>
         <hr />
-        <h4>ملفاتك السابقة</h4>
+        <h4>لوحة تحكم الملفات</h4>
+        <div class="card mb-3 p-3">
+          <div><b>المساحة المستخدمة:</b> <span id="usedSpace"></span> ميجا</div>
+          <div><b>المساحة المتبقية:</b> <span id="freeSpace"></span> ميجا</div>
+        </div>
         <ul id="userFiles" class="file-list list-unstyled"></ul>
         <button class="btn btn-outline-danger mt-3" id="logoutBtn">تسجيل خروج</button>
       </div>
@@ -278,6 +285,25 @@
       document.getElementById('fileInput').onchange = e => {
         selectedFile = e.target.files[0];
       };
+      // توكن المنصة (خاص بالإدارة فقط)
+      const PLATFORM_TOKEN = 'YOUR_PLATFORM_WEB3STORAGE_TOKEN'; // ضع هنا توكن المنصة الخاص بك
+
+      function getUserStorageUsage(username) {
+        const files = getUserFiles(username);
+        let total = 0;
+        files.forEach(f => {
+          if (f.size) total += f.size;
+        });
+        return total;
+      }
+      function updateUserStorageInfo() {
+        const maxFree = 500 * 1024 * 1024; // 500 ميجا
+        const used = getUserStorageUsage(currentUser);
+        const left = Math.max(0, maxFree - used);
+        document.getElementById('usedSpace').innerText = (used / (1024*1024)).toFixed(2);
+        document.getElementById('freeSpace').innerText = (left / (1024*1024)).toFixed(2);
+      }
+
       document.getElementById('uploadBtn').onclick = async function() {
         const resultDiv = document.getElementById('result');
         resultDiv.innerHTML = '';
@@ -285,14 +311,21 @@
           resultDiv.innerHTML = '<div class="error">يرجى اختيار ملف أولاً</div>';
           return;
         }
+        const maxFree = 500 * 1024 * 1024; // 500 ميجا
+        const used = getUserStorageUsage(currentUser);
+        if (used + selectedFile.size > maxFree) {
+          resultDiv.innerHTML = '<div class="error">لقد تجاوزت المساحة المجانية! يرجى شراء باقة أكبر.</div>';
+          return;
+        }
         try {
           // رفع الملف إلى Web3Storage باسم المستخدم
-          const client = new window.Web3Storage.Web3Storage({ token: 'YOUR_WEB3STORAGE_TOKEN' });
+          const client = new window.Web3Storage.Web3Storage({ token: PLATFORM_TOKEN });
           const cid = await client.put([selectedFile], { name: currentUser + '_' + selectedFile.name });
           const ipfsUrl = `https://ipfs.io/ipfs/${cid}`;
           resultDiv.innerHTML = '<div class="success">تم رفع الملف على IPFS: <a class="ipfs-link" href="' + ipfsUrl + '" target="_blank">' + ipfsUrl + '</a></div>';
-          saveUserFile(currentUser, { name: selectedFile.name, url: ipfsUrl });
+          saveUserFile(currentUser, { name: selectedFile.name, url: ipfsUrl, size: selectedFile.size });
           renderUserFiles();
+          updateFreeSpace();
         } catch (err) {
           resultDiv.innerHTML = '<div class="error">حدث خطأ أثناء رفع الملف: ' + err.message + '</div>';
         }
@@ -304,10 +337,12 @@
         ul.innerHTML = files.length ? files.map((f, i) => `
           <li>
             <a href="${f.url}" target="_blank" class="ipfs-link">${f.name}</a>
+            <span class="ms-2">(${(f.size/(1024*1024)).toFixed(2)} ميجا)</span>
             <button class="btn btn-sm btn-outline-danger ms-2" onclick="deleteFile(${i})">حذف</button>
             <button class="btn btn-sm btn-outline-success ms-2" onclick="downloadFile('${f.url}', '${f.name}')">تحميل</button>
           </li>
         `).join('') : '<li>لا توجد ملفات محفوظة لهذا المستخدم.</li>';
+        updateUserStorageInfo();
       }
       window.deleteFile = function(idx) {
         deleteUserFile(currentUser, idx);
